@@ -171,7 +171,6 @@ class Network:
 			if np.argmax(results)==np.argmax(y):
 				corrects+=1
 			errors[i]= np.sqrt(np.sum((results-y)**2))
-
 			dists[i]=abs(np.argmax(results)-np.argmax(y))
 		print "Correct: {}/{}".format(corrects,len(testY))
 		print "MAD: {}".format(dists.mean())
