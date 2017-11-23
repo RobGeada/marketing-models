@@ -7,8 +7,8 @@ recursive_loading: FALSE
 munging: TRUE
 logging: FALSE
 logging_level: INFO
-load_libraries: FALSE
-libraries: leaps, ggplot2
+load_libraries: TRUE
+libraries: leaps, ggplot2, pls, GGally, ElemStatLearn, mice, VIM
 as_factors: TRUE
 data_tables: FALSE
 attach_internal_libraries: FALSE

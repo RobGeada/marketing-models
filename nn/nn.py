@@ -90,7 +90,7 @@ class Network:
 		self.input = Layer(name="Input",size=inDim,biases=biases,transfers=[sigmoid,sigmoidPrime])
 		for i,layerDim in enumerate(hiddenDims):
 			self.hiddenLayers.append(Layer(name=layerNamer(i),size=layerDim,biases=1,transfers=[sigmoid,sigmoidPrime]))
-		self.output = Layer(name="Output",size=outDim,transfers=[sigmoid,sigmoidPrime])
+		self.output = Layer(name="Output",size=outDim,transfers=[softPlus,softPlusPrime])
 
 		#link network
 		self.input.pointsTo(self.hiddenLayers[0])
@@ -167,13 +167,9 @@ class Network:
 			y = testY[i]
 			self.input.setValues(x)
 			self.calculate()
-			results = trainScale[1](self.output.xs)
-			if np.argmax(results)==np.argmax(y):
-				corrects+=1
-			errors[i]= np.sqrt(np.sum((results-y)**2))
-			dists[i]=abs(np.argmax(results)-np.argmax(y))
-		print "Correct: {}/{}".format(corrects,len(testY))
-		print "MAD: {}".format(dists.mean())
+			results = (self.output.xs)
+			errors[i]= np.mean(np.abs((results-y)/y))
+
 		if not verbose:
 			return errors.mean()
 		else:

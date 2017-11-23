@@ -1,28 +1,43 @@
 #===PROJECT SETUP===
+library(ProjectTemplate)
 setwd("~/Documents/GradSchool/FirstYear/StatsForBigData/Project/marketing")
+rm(list=ls())
 load.project()
 
 #===SEPERATE INTO TRAIN AND TEST SETS
-trainDF = trimDF[train,]
-testDF  = trimDF[-train,]
+train=sample(dim(catMarketing)[1],dim(catMarketing)[1]*.75)
+trainDF = catMarketing[train,]
+testDF  = catMarketing[-train,]
+
+#==GRAB ACTUAL Y VALUES
+par(mfrow=c(1,1))
+y = log(testDF$Income)
+hist(trainDF$Income)
 
 #==LINEAR PREDICTION===
-lmfit = lm(IncomeProp~.,data=trainDF)
+lmfit = lm(log(Income)~.,data=trainDF)
 par(mfrow=c(2,2))
-#plot(lmfit)
+plot(lmfit)
+summary(lmfit)
 predictions=predict(lmfit,newdata=testDF)
-errors[i]=mean(abs((predictions)-testDF$IncomeProp)/testDF$IncomeProp)
-mean(errors)
+errors=mean(abs((predictions-y)/y))
+print(errors)
+
+#==LINEAR PREDICTIONS DIAGNOSTICS
+plotDF = data.frame(y,predictions)
+ggplot(plotDF,aes(x=y,y=predictions)) +
+  geom_point()+
+  geom_segment(x=0,y=0,xend=10,yend=10)
 
 
 #===PCR PREDICTIONS
 library(pls)
-pcrFit = pcr(IncomeProp~.,data=trainDF,scale=TRUE,validation="CV")
+pcrFit = pcr(log(Income)~.,data=trainDF,scale=TRUE,validation="CV")
 summary(pcrFit)
 plot(pcrFit)
-predictions=predict(pcrFit,newdata=testDF,ncomp=25)
-mean(abs(predictions-testDF$IncomeProp)/testDF$IncomeProp)
+predictions=predict(pcrFit,newdata=testDF,ncomp=22)
+mean(abs(predictions-y)/y)
 
-write.csv(trimDF,"marketingTrim.csv")
+write.csv(catMarketing,"marketingTrim.csv")
 #trimDF
 

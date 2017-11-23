@@ -8,27 +8,19 @@ cwd = os.getcwd()
 #np.random.seed(7)
 
 #===FILE PROCESSING================================
-def castToVect(trimY):
-	outs = []
-	for row in trimY:
-		out = np.zeros(9)
-		out[int(row[0]-1)]=1
-		outs.append(out)
-	return np.array(outs)
-
 def loadData(trainSize):
 	trimData = np.genfromtxt('marketingTrim.csv', delimiter=',')[1:,1:]
-	trainScale = (lambda y: y/1.),(lambda yPrime: yPrime*1.)
+	trainScale = (lambda y: np.log(y)/1.),(lambda yPrime: np.exp(yPrime)*1.)
 
 	trimDataX = (trimData-np.mean(trimData,axis=0))/np.std(trimData,axis=0)
-	trimDataY = castToVect(trainScale[0](trimData))
+	trimDataY = trainScale[0](trimData)
 
 	idx = np.random.rand(len(trimData))<trainSize
 	trainX = trimDataX[:,1:][idx]
-	trainY = trimDataY[idx]
+	trainY = trimDataY[idx][:,0]
 
 	testX = trimDataX[:,1:][~idx]
-	testY = trimDataY[~idx]
+	testY = trimDataY[~idx][:,0]
 
 	return trainX,trainY,trainScale,testX,testY
 
@@ -40,9 +32,10 @@ def singleTest(data,parameters):
 
 	#load training,testing data from the specified sets
 	trainX,trainY,trainScale,testX,testY = data
+
 	#create network
-	print trainX.shape,testX.shape
-	net = nn.Network(inDim=trainX.shape[1],biases=1,hiddenDims=hiddenSize,outDim=9,learningRate=learningRate)
+	print trainX,trainY
+	net = nn.Network(inDim=trainX.shape[1],biases=1,hiddenDims=hiddenSize,outDim=1,learningRate=learningRate)
 
 	#train network
 	tStart = time.time()
@@ -79,10 +72,10 @@ def nmax(x,n):
 #===MAIN=================
 if __name__ == "__main__":
 	#Specify test parameters
-	hiddenSize = [25,]
+	hiddenSize = [25,15,10]
 	trainSize=.95
 	epochs = 500
-	learningRate = 1e-3
+	learningRate = 1e-2
 	netParams = (hiddenSize,epochs,learningRate)
 
 	#run test
